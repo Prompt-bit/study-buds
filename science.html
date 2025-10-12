@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Experiments Playground</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #eef6fb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+h1 { color: #2c3e50; text-align: center; }
+.experiment-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+button { padding: 10px 15px; font-size: 16px; border-radius: 5px; border: none; cursor: pointer; background-color: #3498db; color: white; }
+button:hover { background-color: #2980b9; }
+.experiment-container { width: 90%; max-width: 600px; min-height: 350px; border: 2px dashed #7f8c8d; border-radius: 10px; padding: 15px; background-color: #ffffff; position: relative; overflow: hidden; }
+label { display: block; margin: 10px 0 5px; }
+input[type=range] { width: 100%; }
+.color-drop { width: 60px; height: 60px; border-radius: 50%; position: absolute; cursor: pointer; }
+.bubble { width: 15px; height: 15px; border-radius: 50%; background: #00bfff; position: absolute; bottom: 0; opacity: 0.8; }
+.ball { width: 50px; height: 50px; border-radius: 50%; background: #e74c3c; position: absolute; top: 0; left: 50%; transform: translateX(-50%); }
+</style>
+</head>
+<body>
+
+<h1>🧪 Science Experiments Playground</h1>
+
+<div class="experiment-buttons">
+    <button onclick="showExperiment('color')">Color Mixer</button>
+    <button onclick="showExperiment('ball')">Ball Drop</button>
+    <button onclick="showExperiment('reaction')">Bubbling Reaction</button>
+</div>
+
+<div class="experiment-container" id="experimentContainer"></div>
+
+<script>
+const container = document.getElementById('experimentContainer');
+
+function showExperiment(name){
+    container.innerHTML = '';
+    container.style.backgroundColor = '#ffffff';
+
+    if(name==='color'){
+        // Realistic color mixing
+        const colors = ['red','yellow','blue'];
+        let mix = {r:0,g:0,b:0};
+
+        colors.forEach((color,i)=>{
+            const drop = document.createElement('div');
+            drop.className='color-drop';
+            drop.style.background=color;
+            drop.style.left=20+i*80+'px';
+            drop.style.top='50px';
+            container.appendChild(drop);
+
+            drop.addEventListener('mousedown', ()=>{
+                let moving = true;
+                function move(e){
+                    drop.style.left=e.clientX - container.offsetLeft - 30 + 'px';
+                    drop.style.top=e.clientY - container.offsetTop - 30 + 'px';
+
+                    // Check collision with center
+                    const cx = 250, cy = 200, radius = 50;
+                    const dx = parseInt(drop.style.left)-cx;
+                    const dy = parseInt(drop.style.top)-cy;
+                    if(dx*dx+dy*dy<radius*radius){
+                        // Add color to mix
+                        if(color==='red') mix.r+=1;
+                        else if(color==='green') mix.g+=1;
+                        else if(color==='blue') mix.b+=1;
+                        container.style.background=`rgb(${Math.min(255,mix.r*50)},${Math.min(255,mix.g*50)},${Math.min(255,mix.b*50)})`;
+                        moving=false;
+                        document.removeEventListener('mousemove',move);
+                    }
+                }
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', ()=>{ moving=false; document.removeEventListener('mousemove', move); }, {once:true});
+            });
+        });
+
+        // Center mixing area
+        const center = document.createElement('div');
+        center.style.width='100px'; center.style.height='100px'; center.style.border='2px dashed #555';
+        center.style.borderRadius='50%'; center.style.position='absolute'; center.style.left='200px'; center.style.top='150px';
+        container.appendChild(center);
+
+    } else if(name==='ball'){
+        // Ball drop with gravity
+        const ball = document.createElement('div');
+        ball.className='ball';
+        container.appendChild(ball);
+
+        let y=0, vy=0, gravity=0.6, bounce=0.7;
+        function animate(){
+            vy+=gravity;
+            y+=vy;
+            if(y>container.clientHeight-50){ y=container.clientHeight-50; vy*=-bounce; }
+            ball.style.top=y+'px';
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+    } else if(name==='reaction'){
+        // Bubbling reaction
+        function createBubble(){
+            const bubble = document.createElement('div');
+            bubble.className='bubble';
+            bubble.style.left=Math.random()*container.clientWidth+'px';
+            bubble.style.width=10+Math.random()*10+'px';
+            bubble.style.height=bubble.style.width;
+            container.appendChild(bubble);
+            let bottom=0;
+            const speed=1+Math.random()*2;
+            function rise(){
+                bottom+=speed;
+                bubble.style.bottom=bottom+'px';
+                bubble.style.opacity=1-bottom/container.clientHeight;
+                if(bottom<container.clientHeight) requestAnimationFrame(rise);
+                else container.removeChild(bubble);
+            }
+            rise();
+        }
+        setInterval(createBubble, 200);
+    }
+}
+
+// Load default
+showExperiment('color');
+</script>
+
+</body>
+</html>

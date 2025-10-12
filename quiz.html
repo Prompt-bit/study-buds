@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Quiz</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f7f9fc;
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+}
+.sidebar {
+    background-color: #3498db;
+    color: white;
+    padding: 20px;
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.sidebar h2 {
+    margin-top: 0;
+    text-align: center;
+}
+.question-number {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s;
+    user-select: none;
+}
+.question-number.active { background: white; color: #3498db; font-weight: bold; }
+.question-number.correct { background: #2ecc71; color: white; }
+.question-number.wrong { background: #e74c3c; color: white; }
+.question-number.skipped { background: #7f8c8d; color: white; opacity: 0.6; cursor: not-allowed; }
+.quiz-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    text-align: center;
+}
+.question { font-size: 22px; margin-bottom: 15px; }
+.question-hint { font-style: italic; color: #555; margin-bottom: 15px; }
+input[type="number"] { padding: 8px; font-size: 18px; width: 120px; text-align: center; border: 2px solid #ccc; border-radius: 5px; }
+.buttons { margin-top: 15px; display: flex; gap: 10px; }
+button { padding: 10px 20px; border: none; background-color: #3498db; color: white; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+button:hover { background-color: #2980b9; }
+.score { margin-top: 20px; font-weight: bold; color: #2c3e50; }
+.worm { display: none; position: relative; margin-top: 40px; width: 200px; height: 100px; animation: wiggle 1s infinite ease-in-out; }
+@keyframes wiggle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.segment { width: 40px; height: 40px; background-color: #7bed9f; border: 3px solid #27ae60; border-radius: 50%; position: absolute; top: 30px; }
+.segment:nth-child(1) { left: 0; }
+.segment:nth-child(2) { left: 35px; }
+.segment:nth-child(3) { left: 70px; }
+.segment:nth-child(4) { left: 105px; }
+.segment:nth-child(5) { left: 140px; }
+.face { position: absolute; top: 30px; left: 140px; width: 40px; height: 40px; border-radius: 50%; border: 3px solid #27ae60; background-color: #7bed9f; }
+.eye { width: 8px; height: 8px; background: black; border-radius: 50%; position: absolute; top: 12px; }
+.eye.left { left: 8px; }
+.eye.right { right: 8px; }
+.mouth { width: 20px; height: 10px; border: 2px solid black; position: absolute; bottom: 8px; left: 9px; border-radius: 0 0 20px 20px; }
+.mouth.sad { border-radius: 20px 20px 0 0; bottom: 12px; transform: rotate(180deg); }
+@media (max-width: 700px) {
+    body { flex-direction: column; }
+    .sidebar { flex-direction: row; width: 100%; overflow-x: auto; justify-content: center; }
+    .question-number { min-width: 40px; font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <h2>Quiz</h2>
+</div>
+
+<div class="quiz-container">
+    <div class="question-hint" id="hint"></div>
+    <div class="question" id="question"></div>
+    <input type="number" id="answer" placeholder="Your answer">
+    <div class="buttons">
+        <button id="submitBtn" onclick="submitAnswer()">Submit</button>
+        <button id="skipBtn" onclick="skipQuestion()">Skip</button>
+        <button id="nextBtn" style="display:none;" onclick="nextQuestion()">Next ➡️</button>
+    </div>
+    <div class="score" id="score"></div>
+
+    <div class="worm" id="worm">
+        <div class="segment"></div>
+        <div class="segment"></div>
+        <div class="segment"></div>
+        <div class="segment"></div>
+        <div class="face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth" id="mouth"></div>
+        </div>
+    </div>
+</div>
+
+<audio id="correctSound" src="correct.mp3"></audio>
+<audio id="wrongSound" src="wrong.mp3"></audio>
+
+<script>
+const totalQuestions = 5;
+let questions = [], correctAnswers = [], currentQuestion = 0;
+let userAnswers = Array(totalQuestions).fill(null);
+let status = Array(totalQuestions).fill("pending");
+let score = 0;
+
+const hints = [
+    "Q1 — Piece of cake! 🍰",
+    "Q2 — Getting tricky... 😏",
+    "Q3 — You got this! 💪",
+    "Q4 — Stay sharp! 🧠",
+    "Q5 — Final boss! 👑"
+];
+
+const correctSound = document.getElementById("correctSound");
+const wrongSound = document.getElementById("wrongSound");
+
+function generateQuestions() {
+    const ops = ['+', '-', '*', '/'];
+    for (let i = 0; i < totalQuestions; i++) {
+        let num1, num2, op, question, answer;
+        while(true){
+            num1 = Math.floor(Math.random()*20)+1;
+            num2 = Math.floor(Math.random()*20)+1;
+            op = ops[Math.floor(Math.random()*ops.length)];
+            if(op==='+'){ question=`${num1}+${num2}`; answer=num1+num2; }
+            else if(op==='-'){ if(num1<num2)[num1,num2]=[num2,num1]; question=`${num1}-${num2}`; answer=num1-num2; }
+            else if(op==='*'){ question=`${num1}*${num2}`; answer=num1*num2; }
+            else { answer=Math.floor(Math.random()*10)+1; num2=Math.floor(Math.random()*10)+1; num1=answer*num2; question=`${num1}/${num2}`; }
+            if(answer>=0 && Number.isInteger(answer)) break;
+        }
+        questions.push(question); correctAnswers.push(answer);
+    }
+}
+
+function createSidebar(){
+    const sidebar=document.getElementById('sidebar');
+    for(let i=0;i<totalQuestions;i++){
+        const div=document.createElement('div'); div.className='question-number'; div.textContent=i+1;
+        div.onclick=()=>{ if(status[i]!=='skipped') showQuestion(i); };
+        sidebar.appendChild(div);
+    }
+}
+
+function updateSidebar(){
+    document.querySelectorAll('.question-number').forEach((item,i)=>{
+        item.className='question-number';
+        if(i===currentQuestion)item.classList.add('active');
+        if(status[i]==='correct')item.classList.add('correct');
+        if(status[i]==='wrong')item.classList.add('wrong');
+        if(status[i]==='skipped')item.classList.add('skipped');
+    });
+}
+
+function showQuestion(index){
+    currentQuestion=index;
+    document.getElementById('question').textContent=`Q${index+1}: ${questions[index]} = ?`;
+    document.getElementById('hint').textContent=hints[index];
+    document.getElementById('answer').value=userAnswers[index]??'';
+    document.getElementById('submitBtn').style.display=''; document.getElementById('skipBtn').style.display='';
+    document.getElementById('nextBtn').style.display='none';
+    updateSidebar();
+}
+
+function submitAnswer(){
+    const val=document.getElementById('answer').value;
+    if(val==='')return alert("Enter an answer!");
+    const answer=parseFloat(val); userAnswers[currentQuestion]=answer;
+    document.getElementById('submitBtn').style.display='none'; document.getElementById('skipBtn').style.display='none';
+
+    if(answer===correctAnswers[currentQuestion]){
+        status[currentQuestion]='correct'; score++; 
+        correctSound.play();
+        correctSound.onended=()=>{ alert("✅ Correct!"); document.getElementById('nextBtn').style.display=''; updateSidebar(); };
+    } else {
+        status[currentQuestion]='wrong';
+        wrongSound.play();
+        wrongSound.onended=()=>{ alert("❌ Wrong! Try again!"); document.getElementById('submitBtn').style.display=''; document.getElementById('skipBtn').style.display=''; updateSidebar(); };
+    }
+}
+
+function skipQuestion(){
+    status[currentQuestion]='skipped';
+    userAnswers[currentQuestion]=null;
+    nextQuestion();
+}
+
+function nextQuestion(){
+    const next=status.findIndex((s,i)=>s==='pending' && i>currentQuestion);
+    if(next!==-1)showQuestion(next); else finishQuiz();
+}
+
+function finishQuiz(){
+    document.getElementById('question').textContent="🎉 Quiz Finished!";
+    document.getElementById('hint').textContent='';
+    document.getElementById('answer').style.display='none';
+    document.querySelector('.buttons').style.display='none';
+    document.getElementById('score').textContent=`Your final score: ${score}/${totalQuestions}`;
+    updateSidebar();
+    const worm=document.getElementById('worm'); worm.style.display='block';
+    const mouth=document.getElementById('mouth');
+    if(score>=3) mouth.classList.remove('sad'); else mouth.classList.add('sad');
+}
+
+generateQuestions(); createSidebar(); showQuestion(0);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Sentence Transformer</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #fef9f3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+h1 { color: #2c3e50; }
+.container { width: 90%; max-width: 600px; background: #fff9e6; padding: 20px; border-radius: 10px; border: 2px solid #f0c36d; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+.sentence { font-size: 20px; margin-bottom: 15px; }
+.instructions { font-style: italic; color: #555; margin-bottom: 15px; }
+input[type=text] { width: 100%; padding: 10px; font-size: 18px; border-radius: 5px; border: 1px solid #ccc; }
+button { padding: 10px 20px; margin-top: 10px; border: none; border-radius: 5px; background: #f0c36d; cursor: pointer; font-size: 16px; }
+button:hover { background: #e6b845; }
+.score { margin-top: 15px; font-weight: bold; }
+.feedback { margin-top: 10px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>📝 English Sentence Transformer</h1>
+<div class="container">
+    <div class="sentence" id="sentence"></div>
+    <div class="instructions" id="instructions"></div>
+    <input type="text" id="answer" placeholder="Type your transformed sentence here">
+    <button onclick="checkAnswer()">Submit</button>
+    <div class="feedback" id="feedback"></div>
+    <div class="score" id="score">Score: 0</div>
+</div>
+
+<script>
+const sentences = [
+    {text: "The cat chased the mouse.", type: "passive", answer: "The mouse was chased by the cat."},
+    {text: "She eats an apple.", type: "past", answer: "She ate an apple."},
+    {text: "I like ice cream.", type: "negative", answer: "I do not like ice cream."},
+    {text: "They are playing soccer.", type: "passive", answer: "Soccer is being played by them."},
+    {text: "He writes a letter.", type: "past", answer: "He wrote a letter."}
+];
+
+let current = 0;
+let score = 0;
+
+function showSentence() {
+    const s = sentences[current];
+    document.getElementById('sentence').textContent = s.text;
+    if(s.type === "passive") document.getElementById('instructions').textContent = "Transform this sentence to passive voice.";
+    else if(s.type === "past") document.getElementById('instructions').textContent = "Change this sentence to past tense.";
+    else if(s.type === "negative") document.getElementById('instructions').textContent = "Make this sentence negative.";
+    document.getElementById('answer').value = '';
+    document.getElementById('feedback').textContent = '';
+}
+
+function checkAnswer() {
+    const user = document.getElementById('answer').value.trim();
+    const correct = sentences[current].answer.trim();
+    if(user.toLowerCase() === correct.toLowerCase()) {
+        document.getElementById('feedback').textContent = "✅ Correct!";
+        score++;
+        document.getElementById('score').textContent = `Score: ${score}`;
+        setTimeout(nextSentence, 1000);
+    } else {
+        document.getElementById('feedback').textContent = "❌ Try again!";
+    }
+}
+
+function nextSentence() {
+    current++;
+    if(current >= sentences.length) {
+        document.getElementById('sentence').textContent = "🎉 You finished!";
+        document.getElementById('instructions').textContent = '';
+        document.getElementById('answer').style.display = 'none';
+        document.querySelector('button').style.display = 'none';
+        document.getElementById('feedback').textContent = `Final Score: ${score}/${sentences.length}`;
+    } else {
+        showSentence();
+    }
+}
+
+showSentence();
+</script>
+
+</body>
+</html>
