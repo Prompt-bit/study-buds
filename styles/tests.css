@@ -1,0 +1,14 @@
+main {
+    display: flex;
+}
+.test-container {
+    border: 2px solid #393939;
+    border-radius: 6px;
+    width: 30%;
+    background-color: #fbfafa;
+    margin: 20px;
+    padding: 10px;
+}
+h2 {
+    font-size: 1.4rem;
+}

@@ -1,0 +1,23 @@
+ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+li {
+    list-style: none;
+    background-color: #add8e6;
+    width: 40%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 2px solid blue;
+    margin-bottom: 20px;
+    transition: all 500ms ease-out;
+}
+li:hover {
+    background-color: #74c7e2;
+    cursor: pointer;
+}
+a {
+    text-decoration: none;
+    color: black;
+}

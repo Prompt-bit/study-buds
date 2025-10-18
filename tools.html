@@ -16,6 +16,11 @@
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link
+            href="styles/tools.css"
+            rel="stylesheet"
+        />
+        <script src="tools.js" defer></script>
     </head>
 
     <body>
@@ -23,17 +28,25 @@
           <h1><span style="color: red">Study</span><span style="color:blue;">Buds</span></h1>
         </header>
         <main class="container m-3">
+          <nav>
+            <ul>
+              <a href="tools.html"></a><li id="main-items">Main Items</li></a>
+              <a href="stories.html"></a><li id="stories">Stories</li></a>
+            </ul>
+          </nav>
           <a href="main daily.html" target="_blank">
             <img src="Daily Quiz.png" alt="daily quiz" class="img-fluid" style="border-radius: 6px; border: 2px solid black;" width="600">
           </a>
           <br>
           <br>
-          <a href="science.html" target="_blank">
-            <img src="Science.png" alt="science fun" class="img-fluid" style="border: 2px solid black; border-radius: 6px;" width="300">
-          </a>
-          <a href="english.html" target="_blank">
-            <img src="English.png" alt="english fun" class="img-fluid" style="border: 2px solid black; border-radius: 6px;" width="300">
-          </a>
+          <div class="optional-container">
+            <a href="science.html" target="_blank">
+              <img src="Science.png" alt="science fun" class="img-fluid" style="border: 2px solid black; border-radius: 6px;" width="300">
+            </a>
+            <a href="english.html" target="_blank">
+              <img src="English.png" alt="english fun" class="img-fluid" style="border: 2px solid black; border-radius: 6px;" width="300">
+            </a>
+          </div>
         </main>
         <!-- Bootstrap JavaScript Libraries -->
         <script
