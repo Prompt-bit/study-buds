@@ -6,7 +6,7 @@ ul {
 li {
     list-style: none;
     background-color: #add8e6;
-    width: 80%;
+    width: fit-content;
     padding: 10px;
     border-radius: 6px;
     border: 2px solid blue;
