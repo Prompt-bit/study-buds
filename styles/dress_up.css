@@ -1,0 +1,99 @@
+@font-face {
+    font-family: 'Study Buds Sans';
+    src: url('StudyBudsSans.ttf') format('truetype');
+}
+
+/* Page design */
+body {
+    font-family: 'Study Buds Sans', sans-serif;
+    background: linear-gradient(to bottom right, #c1f4ff, #f0fff4);
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+}
+
+h1 {
+    color: #2e7d32;
+    font-size: 2.5em;
+    text-shadow: 2px 2px #a5d6a7;
+}
+
+.tagline {
+    color: #388e3c;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+/* Lumo area */
+.lumo-container {
+    position: relative;
+    display: inline-block;
+    margin: 20px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.lumo-container img {
+    width: 200px;
+    user-select: none;
+}
+
+.accessory {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    pointer-events: none;
+}
+
+#hat {
+    position: absolute;
+    top: -20px;   /* move it above Lumo */
+    left: 30px;   /* center it horizontally */
+    width: 140px; /* smaller than Lumo */
+    display: none;
+}
+
+/* Glasses — over Lumo’s eyes */
+#glasses {
+    position: absolute;
+    top: 60px;    /* adjust vertically */
+    left: 50px;   /* adjust horizontally */
+    width: 120px; /* smaller width */
+    display: none;
+}
+
+
+/* Hide accessories */
+.hidden {
+    display: none;
+}
+
+/* Buttons */
+.buttons {
+    margin-top: 20px;
+}
+
+button {
+    background-color: #7ee081;
+    border: 2px solid #44a047;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+button:hover {
+    background-color: #66cc6f;
+    transform: scale(1.05);
+}
+
+footer {
+    margin-top: 30px;
+    color: #2e7d32;
+    font-size: 14px;
+}

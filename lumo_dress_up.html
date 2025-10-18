@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dress Up Lumo! | Study Buds</title>
+<link rel="stylesheet" href="styles/dress_up.css">
+</head>
+<body>
+
+<h1>🎩 Dress Up Lumo! 🪱</h1>
+<div class="lumo-container">
+    <!-- Your Lumo image -->
+    <img id="lumo" src="lumo.png" alt="Lumo">
+
+    <!-- Accessories from Wikipedia -->
+    <img id="hat" class="accessory" 
+         src="https://www.pngall.com/wp-content/uploads/2017/05/Topper-Hat-Download-PNG.png" 
+         alt="Hat">
+
+    <img id="glasses" class="accessory" 
+         src="https://www.freeiconspng.com/uploads/download-hipster-glasses-clipart-11.png" 
+         alt="Glasses">
+
+</div>
+
+<div class="buttons">
+    <button onclick="toggleAccessory('hat')">🎩 Hat</button>
+    <button onclick="toggleAccessory('glasses')">🕶️ Glasses</button>
+    <button onclick="resetLumo()">🔄 Reset</button>
+    <button onclick="done()">I am Done!</button>
+
+    <audio src="praise.mp3" id="praiseSound"></audio>
+</div>
+
+<script src="dress_up.js"></script>
+</body>
+</html>
