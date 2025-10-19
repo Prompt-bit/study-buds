@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐛 Study Buds Codespaces 💻</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+
+<style>
+    body {
+        margin: 0;
+        background-color: #21252b;
+        color: #c8ccd4;
+        font-family: "Fira Code", monospace;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    header {
+        background-color: #282c34;
+        padding: 10px 20px;
+        color: #61afef;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    main {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* 📁 File tree */
+    #fileTree {
+        width: 220px;
+        background-color: #1e2127;
+        border-right: 1px solid #3a3f4b;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow-y: auto;
+    }
+
+    #fileTree h3 {
+        color: #98c379;
+        margin: 0 0 10px;
+        text-align: center;
+    }
+
+    #fileTree button {
+        width: 100%;
+        margin: 4px 0;
+        background-color: #2c313c;
+        color: #abb2bf;
+        border: 1px solid #3a3f4b;
+        border-radius: 5px;
+        padding: 6px;
+        cursor: pointer;
+    }
+
+    #fileTree button:hover {
+        background-color: #3e4451;
+    }
+
+    #fileTree .file {
+        display: block;
+        text-align: left;
+        padding: 4px 6px;
+        border-radius: 4px;
+        margin: 3px 0;
+        cursor: pointer;
+    }
+
+    #fileTree .file:hover {
+        background-color: #2c313c;
+    }
+
+    #editor {
+        flex: 1;
+        border: none;
+        height: 100%;
+    }
+
+    /* ⚙️ Editor container */
+    #editorContainer {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    #output {
+        background-color: #1e2127;
+        color: #98c379;
+        padding: 10px;
+        border-radius: 6px;
+        height: 120px;
+        margin-top: 10px;
+        overflow-y: auto;
+        font-family: "Fira Code", monospace;
+        box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+    }
+
+    .toolbar {
+        margin-bottom: 8px;
+        display: flex;
+        gap: 10px;
+    }
+
+    button {
+        background-color: #2c313c;
+        color: #abb2bf;
+        border: 1px solid #3a3f4b;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #3e4451;
+    }
+
+    input {
+        background-color: #2c313c;
+        color: #abb2bf;
+        border: 1px solid #3a3f4b;
+        border-radius: 6px;
+        padding: 6px;
+        flex: 1;
+    }
+</style>
+</head>
+<body>
+
+<header>🐛 Study Buds Codespaces 💻 - JS Coder</header>
+
+<main>
+    <div id="fileTree">
+        <h3>📁 Files</h3>
+        <input id="fileName" type="text" placeholder="New file name...">
+        <button onclick="createFile()">➕ Create File</button>
+        <div id="fileList"></div>
+    </div>
+
+    <div id="editorContainer">
+        <div class="toolbar">
+            <button onclick="saveFile()">💾 Save</button>
+            <button onclick="deleteFile()">🗑️ Delete</button>
+            <button onclick="runCode()">▶️ Run</button>
+        </div>
+        <div id="editor"></div>
+        <pre id="output">// Output appears here ✨</pre>
+    </div>
+</main>
+
+<script>
+let editor;
+let currentFile = null;
+
+// === Load Monaco Editor ===
+require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+require(['vs/editor/editor.main'], function () {
+
+    // Define One Dark Pro theme 🎨
+    monaco.editor.defineTheme('one-dark-pro', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: '', background: '282C34', foreground: 'ABB2BF' },
+            { token: 'comment', foreground: '5C6370', fontStyle: 'italic' },
+            { token: 'keyword', foreground: 'C678DD' },
+            { token: 'number', foreground: 'D19A66' },
+            { token: 'string', foreground: '98C379' },
+            { token: 'identifier', foreground: 'E06C75' },
+            { token: 'function', foreground: '61AFEF' },
+            { token: 'type', foreground: '56B6C2' }
+        ],
+        colors: {
+            'editor.background': '#282C34',
+            'editorCursor.foreground': '#528BFF',
+            'editorLineNumber.foreground': '#636D83',
+            'editorLineNumber.activeForeground': '#ABB2BF',
+            'editor.selectionBackground': '#3E4451',
+        }
+    });
+
+    editor = monaco.editor.create(document.getElementById('editor'), {
+        value: "// Welcome to Study Buds Codespaces! 🌈\nconsole.log('Hello Lumo 🪱✨');",
+        language: "javascript",
+        theme: "one-dark-pro"
+    });
+
+    refreshFileList();
+});
+
+// === Create a file ===
+function createFile() {
+    const name = document.getElementById('fileName').value.trim();
+    if (!name) return alert("Give your file a name! 📝");
+    if (localStorage.getItem("studybuds_file_" + name))
+        return alert("File already exists! ⚠️");
+
+    localStorage.setItem("studybuds_file_" + name, "// " + name + "\n");
+    refreshFileList();
+    document.getElementById('fileName').value = "";
+    alert("Created file: " + name + " ✅");
+}
+
+// === Refresh file list ===
+function refreshFileList() {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = "";
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("studybuds_file_")) {
+            const name = key.replace("studybuds_file_", "");
+            const div = document.createElement('div');
+            div.textContent = "📄 " + name;
+            div.className = "file";
+            div.onclick = () => openFile(name);
+            fileList.appendChild(div);
+        }
+    }
+}
+
+// === Open file ===
+function openFile(name) {
+    const code = localStorage.getItem("studybuds_file_" + name);
+    editor.setValue(code);
+    currentFile = name;
+    document.title = "🐛 Study Buds Codespaces - " + name;
+}
+
+// === Save file ===
+function saveFile() {
+    if (!currentFile) return alert("Open a file first! 📂");
+    const code = editor.getValue();
+    localStorage.setItem("studybuds_file_" + currentFile, code);
+    alert("Saved file: " + currentFile + " 💾");
+}
+
+// === Delete file ===
+function deleteFile() {
+    if (!currentFile) return alert("No file selected to delete! ❌");
+    if (confirm("Delete " + currentFile + "?")) {
+        localStorage.removeItem("studybuds_file_" + currentFile);
+        currentFile = null;
+        editor.setValue("// No file open");
+        refreshFileList();
+    }
+}
+
+// === Run code ===
+function runCode() {
+    const code = editor.getValue();
+    const output = document.getElementById("output");
+    output.textContent = "";
+
+    const originalLog = console.log;
+    console.log = (...args) => {
+        output.textContent += args.join(" ") + "\n";
+        originalLog(...args);
+    };
+
+    try {
+        const result = eval(code);
+        if (result !== undefined) output.textContent += result + "\n";
+        else if (output.textContent === "") output.textContent = "✅ Code ran successfully with no output!";
+    } catch (err) {
+        output.textContent = "❌ Error: " + err.message;
+    }
+
+    console.log = originalLog;
+}
+</script>
+</body>
+</html>
