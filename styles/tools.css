@@ -1,3 +1,6 @@
+body {
+    background: linear-gradient(to bottom, #c6ffd4, #21ff59);
+}
 ul {
     display: flex;
     flex-wrap: wrap;
