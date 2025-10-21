@@ -7,17 +7,20 @@
     <title>Study Buds</title>
 </head>
 <body>
-    <div class="webpage-container m-3">
-        <h1 class="display-4 fw-semibold">Study Buds</h1>
-        <p>Use Study Tools with ease!</p>
-        <a href="login.html">
+    <div class="container m-3">
+        <h1>Study Buds</h1>
+        <p>Where learning becomes fun</p>
+        <a href="login.html" target="_blank">
             <button class="btn btn-primary">Get Started</button>
         </a>
-    </div>
-
-    <div class="container m-50">
-        <br><br><br><br><br><br><br><br><br>
-        <iframe class="video" width="360" height="215" src="https://www.youtube.com/embed/Xyep7jX5d50?si=ukkZx3XUBB4F4bWf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <button id="view-btn" class="btn btn-secondary">Why Study Buds?</button>
     </div>
 </body>
 </html>
+<script>
+    const view_btn = document.getElementById("view-btn");
+
+    view_btn.addEventListener("click", event => {
+        window.open("popup.html", "Viewing Advert...", "width=400,height=500");
+    });
+</script>
