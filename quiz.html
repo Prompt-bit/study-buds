@@ -136,8 +136,8 @@ function generateQuestions() {
             op = ops[Math.floor(Math.random()*ops.length)];
             if(op==='+'){ question=`${num1}+${num2}`; answer=num1+num2; }
             else if(op==='-'){ if(num1<num2)[num1,num2]=[num2,num1]; question=`${num1}-${num2}`; answer=num1-num2; }
-            else if(op==='*'){ question=`${num1}*${num2}`; answer=num1*num2; }
-            else { answer=Math.floor(Math.random()*10)+1; num2=Math.floor(Math.random()*10)+1; num1=answer*num2; question=`${num1}/${num2}`; }
+            else if(op==='×'){ question=`${num1}×${num2}`; answer=num1×num2; }
+            else { answer=Math.floor(Math.random()×10)+1; num2=Math.floor(Math.random()×10)+1; num1=answer×num2; question=`${num1}÷${num2}`; }
             if(answer>=0 && Number.isInteger(answer)) break;
         }
         questions.push(question); correctAnswers.push(answer);
@@ -218,4 +218,5 @@ generateQuestions(); createSidebar(); showQuestion(0);
 
 </body>
 </html>
+
 
