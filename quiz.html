@@ -127,7 +127,7 @@ const correctSound = document.getElementById("correctSound");
 const wrongSound = document.getElementById("wrongSound");
 
 function generateQuestions() {
-    const ops = ['+', '-', '*', '/'];
+    const ops = ['+', '-', '×', '÷'];
     for (let i = 0; i < totalQuestions; i++) {
         let num1, num2, op, question, answer;
         while(true){
@@ -218,3 +218,4 @@ generateQuestions(); createSidebar(); showQuestion(0);
 
 </body>
 </html>
+
