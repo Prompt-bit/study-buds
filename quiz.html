@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Math Quiz</title>
 <style>
 body {
@@ -127,93 +127,172 @@ const correctSound = document.getElementById("correctSound");
 const wrongSound = document.getElementById("wrongSound");
 
 function generateQuestions() {
-    const ops = ['+', '-', '*', '/'];
+    // clear arrays in case function is called again
+    questions = [];
+    correctAnswers = [];
+
+    const ops = ['+', '-', '×', '÷'];
     for (let i = 0; i < totalQuestions; i++) {
         let num1, num2, op, question, answer;
-        while(true){
-            num1 = Math.floor(Math.random()*20)+1;
-            num2 = Math.floor(Math.random()*20)+1;
-            op = ops[Math.floor(Math.random()*ops.length)];
-            if(op==='+'){ question=`${num1}+${num2}`; answer=num1+num2; }
-            else if(op==='-'){ if(num1<num2)[num1,num2]=[num2,num1]; question=`${num1}-${num2}`; answer=num1-num2; }
-            else if(op==='*'){ question=`${num1}*${num2}`; answer=num1*num2; }
-            else { answer=Math.floor(Math.random()*10)+1; num2=Math.floor(Math.random()*10)+1; num1=answer*num2; question=`${num1}/${num2}`; }
-            if(answer>=0 && Number.isInteger(answer)) break;
+        while (true) {
+            num1 = Math.floor(Math.random() * 20) + 1;
+            num2 = Math.floor(Math.random() * 20) + 1;
+            op = ops[Math.floor(Math.random() * ops.length)];
+
+            if (op === '+') {
+                question = `${num1}+${num2}`;
+                answer = num1 + num2;
+            } else if (op === '-') {
+                if (num1 < num2) [num1, num2] = [num2, num1];
+                question = `${num1}-${num2}`;
+                answer = num1 - num2;
+            } else if (op === '×') {
+                question = `${num1}×${num2}`;
+                answer = num1 * num2; // use * for multiplication in JS
+            } else if (op === '÷') {
+                // create a clean integer division: pick divisor and quotient, build dividend
+                answer = Math.floor(Math.random() * 10) + 1; // quotient
+                num2 = Math.floor(Math.random() * 10) + 1; // divisor
+                num1 = answer * num2; // dividend
+                question = `${num1}÷${num2}`;
+            }
+
+            if (answer >= 0 && Number.isInteger(answer)) break;
         }
-        questions.push(question); correctAnswers.push(answer);
+        questions.push(question);
+        correctAnswers.push(answer);
     }
 }
 
 function createSidebar(){
-    const sidebar=document.getElementById('sidebar');
-    for(let i=0;i<totalQuestions;i++){
-        const div=document.createElement('div'); div.className='question-number'; div.textContent=i+1;
-        div.onclick=()=>{ if(status[i]!=='skipped') showQuestion(i); };
+    const sidebar = document.getElementById('sidebar');
+    // remove existing question-number nodes besides header if regenerating
+    const existing = sidebar.querySelectorAll('.question-number');
+    existing.forEach(n => n.remove());
+
+    for (let i = 0; i < totalQuestions; i++) {
+        const div = document.createElement('div');
+        div.className = 'question-number';
+        div.textContent = i + 1;
+        // allow navigation to any non-skipped question
+        div.onclick = () => { if (status[i] !== 'skipped') showQuestion(i); };
         sidebar.appendChild(div);
     }
 }
 
 function updateSidebar(){
-    document.querySelectorAll('.question-number').forEach((item,i)=>{
-        item.className='question-number';
-        if(i===currentQuestion)item.classList.add('active');
-        if(status[i]==='correct')item.classList.add('correct');
-        if(status[i]==='wrong')item.classList.add('wrong');
-        if(status[i]==='skipped')item.classList.add('skipped');
+    document.querySelectorAll('.question-number').forEach((item,i) => {
+        item.className = 'question-number';
+        if (i === currentQuestion) item.classList.add('active');
+        if (status[i] === 'correct') item.classList.add('correct');
+        if (status[i] === 'wrong') item.classList.add('wrong');
+        if (status[i] === 'skipped') item.classList.add('skipped');
     });
 }
 
 function showQuestion(index){
-    currentQuestion=index;
-    document.getElementById('question').textContent=`Q${index+1}: ${questions[index]} = ?`;
-    document.getElementById('hint').textContent=hints[index];
-    document.getElementById('answer').value=userAnswers[index]??'';
-    document.getElementById('submitBtn').style.display=''; document.getElementById('skipBtn').style.display='';
-    document.getElementById('nextBtn').style.display='none';
+    currentQuestion = index;
+    // ensure inputs/buttons are visible (in case coming back from finished state)
+    document.getElementById('answer').style.display = '';
+    document.querySelector('.buttons').style.display = 'flex';
+
+    document.getElementById('question').textContent = `Q${index+1}: ${questions[index]} = ?`;
+    document.getElementById('hint').textContent = hints[index] || '';
+    document.getElementById('answer').value = (userAnswers[index] ?? '') + '';
+    document.getElementById('submitBtn').style.display = '';
+    document.getElementById('skipBtn').style.display = (status[index] === 'skipped') ? 'none' : '';
+    document.getElementById('nextBtn').style.display = 'none';
     updateSidebar();
 }
 
 function submitAnswer(){
-    const val=document.getElementById('answer').value;
-    if(val==='')return alert("Enter an answer!");
-    const answer=parseFloat(val); userAnswers[currentQuestion]=answer;
-    document.getElementById('submitBtn').style.display='none'; document.getElementById('skipBtn').style.display='none';
+    const val = document.getElementById('answer').value;
+    if (val === '') return alert("Enter an answer!");
+    const answer = parseFloat(val);
+    userAnswers[currentQuestion] = answer;
+    document.getElementById('submitBtn').style.display = 'none';
+    document.getElementById('skipBtn').style.display = 'none';
 
-    if(answer===correctAnswers[currentQuestion]){
-        status[currentQuestion]='correct'; score++; 
-        correctSound.play();
-        correctSound.onended=()=>{ alert("✅ Correct!"); document.getElementById('nextBtn').style.display=''; updateSidebar(); };
+    if (answer === correctAnswers[currentQuestion]) {
+        status[currentQuestion] = 'correct';
+        score++;
+        // play sound (handle promise rejection if autoplay blocked)
+        const p = correctSound.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+        correctSound.onended = () => {
+            alert("✅ Correct!");
+            document.getElementById('nextBtn').style.display = '';
+            updateSidebar();
+        };
+        // if audio doesn't fire onended (e.g. not loaded), still show feedback after short timeout
+        setTimeout(() => {
+            if (document.getElementById('nextBtn').style.display === 'none') {
+                alert("✅ Correct!");
+                document.getElementById('nextBtn').style.display = '';
+                updateSidebar();
+            }
+        }, 800);
     } else {
-        status[currentQuestion]='wrong';
-        wrongSound.play();
-        wrongSound.onended=()=>{ alert("❌ Wrong! Try again!"); document.getElementById('submitBtn').style.display=''; document.getElementById('skipBtn').style.display=''; updateSidebar(); };
+        status[currentQuestion] = 'wrong';
+        const p = wrongSound.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+        wrongSound.onended = () => {
+            alert("❌ Wrong! Try again!");
+            document.getElementById('submitBtn').style.display = '';
+            document.getElementById('skipBtn').style.display = '';
+            updateSidebar();
+        };
+        // fallback if audio doesn't trigger onended
+        setTimeout(() => {
+            if (document.getElementById('submitBtn').style.display === 'none') {
+                alert("❌ Wrong! Try again!");
+                document.getElementById('submitBtn').style.display = '';
+                document.getElementById('skipBtn').style.display = '';
+                updateSidebar();
+            }
+        }, 800);
     }
 }
 
 function skipQuestion(){
-    status[currentQuestion]='skipped';
-    userAnswers[currentQuestion]=null;
+    status[currentQuestion] = 'skipped';
+    userAnswers[currentQuestion] = null;
+    updateSidebar();
     nextQuestion();
 }
 
 function nextQuestion(){
-    const next=status.findIndex((s,i)=>s==='pending' && i>currentQuestion);
-    if(next!==-1)showQuestion(next); else finishQuiz();
+    // find next pending question (anywhere), prefer ones after current if available
+    let next = -1;
+    for (let i = currentQuestion + 1; i < totalQuestions; i++) {
+        if (status[i] === 'pending') { next = i; break; }
+    }
+    if (next === -1) {
+        // search from beginning
+        for (let i = 0; i < totalQuestions; i++) {
+            if (status[i] === 'pending') { next = i; break; }
+        }
+    }
+    if (next !== -1) showQuestion(next);
+    else finishQuiz();
 }
 
 function finishQuiz(){
-    document.getElementById('question').textContent="🎉 Quiz Finished!";
-    document.getElementById('hint').textContent='';
-    document.getElementById('answer').style.display='none';
-    document.querySelector('.buttons').style.display='none';
-    document.getElementById('score').textContent=`Your final score: ${score}/${totalQuestions}`;
+    document.getElementById('question').textContent = "🎉 Quiz Finished!";
+    document.getElementById('hint').textContent = '';
+    document.getElementById('answer').style.display = 'none';
+    document.querySelector('.buttons').style.display = 'none';
+    document.getElementById('score').textContent = `Your final score: ${score}/${totalQuestions}`;
     updateSidebar();
-    const worm=document.getElementById('worm'); worm.style.display='block';
-    const mouth=document.getElementById('mouth');
-    if(score>=3) mouth.classList.remove('sad'); else mouth.classList.add('sad');
+    const worm = document.getElementById('worm'); worm.style.display = 'block';
+    const mouth = document.getElementById('mouth');
+    if (score >= 3) mouth.classList.remove('sad'); else mouth.classList.add('sad');
 }
 
-generateQuestions(); createSidebar(); showQuestion(0);
+// initialize
+generateQuestions();
+createSidebar();
+showQuestion(0);
 </script>
 
 </body>
